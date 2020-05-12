@@ -6,6 +6,10 @@ Created on Fri May  8 23:43:58 2020
 """
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats.mstats import winsorize
+from scipy.stats import boxcox
 import warnings
 warnings.filterwarnings("ignore")
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
@@ -82,6 +86,68 @@ class meet:
         print("object feature count:",count_object)
         return df.describe()
     
-    def plots(df):
+    def transform(df,ttype="boxcox"):
+    
+        features_to_trans = df.columns[df.dtypes != object]
+        if ttype=="boxcox":
+            for feature in features_to_trans:
+                df[feature],_ = boxcox(df[feature])
+        elif ttype=="log":
+            for feature in features_to_trans:
+                df[feature] = np.log(df[feature])
+        else:
+            print("ttype should be one of these:\n*boxcox\n*log")
+            
+        return df
+            
+  
+    def plots(df,transformation="boxcox",fig_size=(15,8),whis=1.5,wins=(0,0)):
         
+        features_to_plot = df.columns[df.dtypes != object]
+        positive_features = list()
+        
+        for feature in features_to_plot:
+            if (df[feature] > 0).all():
+                positive_features.append(feature)
+
+        if transformation == "boxcox":
+            for feature in positive_features:
+                df[feature],_ = boxcox(winsorize(df[feature],wins))
+                plt.figure(figsize=fig_size)
+                plt.subplot(1,2,1)
+                sns.boxplot(df[feature],whis=whis)
+                plt.subplot(1,2,2)
+                sns.distplot(df[feature])
+                plt.show()
+            
+        elif transformation == "log":
+            for feature in positive_features:
+                df[feature] = np.log(winsorize(df[feature],wins))
+                plt.figure(figsize=fig_size)
+                plt.subplot(1,2,1)
+                sns.boxplot(df[feature])
+                plt.subplot(1,2,2)
+                sns.distplot(df[feature])   
+                plt.show()
+            
+        else:
+            print("tranformation type should be one of these:\n*log\n*boxcox")
+            
+            
+    def corr(df,target,scatter=False,sort=True):
+        cor= df.corr()
+        non_obj = df[df.columns[df.dtypes != object]]
+        if sort==True:
+            print(pd.DataFrame(cor[target]).sort_values(by=target,ascending=False))
+            
+        elif sort == False:
+            print(pd.DataFrame(cor[target]))
+            
+        else:
+            print("sort parameter should be boolean")
+            
+        if scatter==True:
+            for feature in non_obj:
+                sns.scatterplot(df[target],df[feature])
+            
     
