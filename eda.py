@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
 class miss:
-    
+    @staticmethod
     def check(df,check_type="percentage"):
         if check_type == "percentage":
             
@@ -35,7 +35,7 @@ class miss:
 
 
 
-
+    @staticmethod
     def delete(df,percentage=0.6):
         missing_percentage_flag = (df.isnull().sum() *100 /df.shape[0]) > percentage
         
@@ -47,7 +47,7 @@ class miss:
         
         
     
-    
+    @staticmethod
     def fill(df,method="median"):
 
     
@@ -77,6 +77,7 @@ class miss:
                 
             
 class meet:
+    @staticmethod
     def hello(df):
         print(df.info(),end="\n\n\n")
         print("is there any missing value:",miss.check(df,check_type="bool").any())
@@ -85,7 +86,7 @@ class meet:
         print("feature count:",df.shape[1])
         print("object feature count:",count_object)
         return df.describe()
-    
+    @staticmethod
     def transform(df,ttype="boxcox"):
     
         features_to_trans = df.columns[df.dtypes != object]
@@ -100,7 +101,7 @@ class meet:
             
         return df
             
-  
+    @staticmethod
     def plots(df,transformation="boxcox",fig_size=(15,8),whis=1.5,wins=(0,0)):
         
         features_to_plot = df.columns[df.dtypes != object]
@@ -133,7 +134,7 @@ class meet:
         else:
             print("tranformation type should be one of these:\n*log\n*boxcox")
             
-            
+    @staticmethod        
     def corr(df,target,scatter=False,sort=True):
         cor= df.corr()
         non_obj = df[df.columns[df.dtypes != object]]
